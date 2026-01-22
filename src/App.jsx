@@ -161,6 +161,40 @@ const App = () => {
       ],
     }));
   };
+  const calculateSummary = (orders) => {
+    let totalGross = 0;
+    let totalNet = 0;
+    let totalCommission = 0;
+    let totalProfit = 0;
+    let totalLoss = 0;
+    let totalPurchasing = 0;
+
+    orders.forEach((o) => {
+      totalGross += Number(o.grossSale || 0);
+      totalNet += Number(o.netSales || 0);
+      totalCommission += Number(o.darazCommission || 0);
+      totalProfit += Number(o.profit || 0);
+      totalLoss += Number(o.loss || 0);
+
+      // calculate total purchasing price of products
+      const purchasingTotal = o.products.reduce(
+        (sum, p) =>
+          sum + Number(p.purchasingPrice || 0) * Number(p.unitsSold || 0),
+        0
+      );
+      totalPurchasing += purchasingTotal;
+    });
+
+    return {
+      totalGross,
+      totalNet,
+      totalCommission,
+      totalProfit,
+      totalLoss,
+      totalPurchasing,
+    };
+  };
+
 
   const removeProduct = (i) => {
     setOrderForm((prev) => ({
@@ -336,6 +370,43 @@ const App = () => {
           ))}
         </tbody>
       </table>
+      {/* ================= SUMMARY CARD ================= */}
+      {orders.length > 0 && (
+        <div className="bg-gray-100 p-4 rounded shadow mb-6 grid grid-cols-3 gap-4">
+          {(() => {
+            const summary = calculateSummary(orders);
+            return (
+              <>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold">Total Gross</h3>
+                  <p>{summary.totalGross}</p>
+                </div>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold">Total Net</h3>
+                  <p>{summary.totalNet}</p>
+                </div>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold">Total Daraz Commission</h3>
+                  <p>{summary.totalCommission}</p>
+                </div>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold text-green-600">Total Profit</h3>
+                  <p>{summary.totalProfit}</p>
+                </div>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold text-red-600">Total Loss</h3>
+                  <p>{summary.totalLoss}</p>
+                </div>
+                <div className="p-2 bg-white rounded shadow">
+                  <h3 className="font-semibold">Total Purchasing Price</h3>
+                  <p>{summary.totalPurchasing}</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
+
     </div>
   );
 };
